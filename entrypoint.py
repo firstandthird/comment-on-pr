@@ -84,7 +84,7 @@ def main():
     event = read_json(os.getenv('GITHUB_EVENT_PATH'))    
     branch_name = extract_branch_name(event['ref'])
     print(branch_name)
-    branch_author = event['commits'][0]
+    branch_author = event['commits'][0]["author"]["username"]
     branch_label = branch_author + ":" + branch_name  # author:branch
     print(branch_author)
     print(branch_label)
