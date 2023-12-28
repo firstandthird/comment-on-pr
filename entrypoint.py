@@ -70,28 +70,19 @@ def extract_branch_name(ref):
     # Return the last part (branch name)
     return parts[-1] if parts else None
 
-# Example usage
-ref_string = "refs/heads/uatlink"
-branch_name = extract_branch_name(ref_string)
-print(f"Branch name: {branch_name}")
-
-
 def main():
     # search a pull request that triggered this action
     gh = Github(os.getenv('GITHUB_TOKEN'))
     templateName = Github(os.getenv('TEMPLATE'))
-    print(templateName)
     event = read_json(os.getenv('GITHUB_EVENT_PATH'))    
     print(event)
+    print("template is:")
+    print(templateName)
     branch_name = extract_branch_name(event['ref'])
-    print(branch_name)
     branch_author = event['commits'][0]["author"]["username"]
     branch_label = "leaninorg:" + branch_name  # author:branch
-    print(branch_author)
-    print(branch_label)
     repo = gh.get_repo(event['repository']['full_name'])
     prs = repo.get_pulls(state='open', sort='created', head=branch_label)
-    print(prs)
     pr = prs[0]
 
     # load template
