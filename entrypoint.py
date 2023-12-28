@@ -64,30 +64,48 @@ def load_template(filename):
     with open(template_path, 'r') as f:
         return f.read()
 
+def extract_branch_name(ref):
+    # Split the string by '/'
+    parts = ref.split('/')
+    # Return the last part (branch name)
+    return parts[-1] if parts else None
+
+# Example usage
+ref_string = "refs/heads/uatlink"
+branch_name = extract_branch_name(ref_string)
+print(f"Branch name: {branch_name}")
+
 
 def main():
     # search a pull request that triggered this action
     gh = Github(os.getenv('GITHUB_TOKEN'))
-    event = read_json(os.getenv('GITHUB_EVENT_PATH'))
-    print(event)
-    branch_label = event['pull_request']['head']['label']  # author:branch
-    branch_name = branch_label.split(':')[-1]
+    templateName = Github(os.getenv('TEMPLATE'))
+    print(templateName)
+    event = read_json(os.getenv('GITHUB_EVENT_PATH'))    
+    branch_name = extract_branch_name(event['ref'])
+    print(branch_name)
+    branch_author = event['commits'][0]
+    branch_label = branch_author + ":" + branch_name  # author:branch
+    print(branch_author)
+    print(branch_label)
     repo = gh.get_repo(event['repository']['full_name'])
     prs = repo.get_pulls(state='open', sort='created', head=branch_label)
+    print(prs)
     pr = prs[0]
 
     # load template
-    template = load_template(get_actions_input('filename'))
-
+    template = load_template(templateName)
+    print(template)    
     # build a comment
     pr_info = {
         'pull_id': pr.number,
         'branch_name': branch_name
     }
     new_comment = template.format(**pr_info)
-
+    print(new_comment)
     # check if this pull request has a duplicated comment
     old_comments = [c.body for c in pr.get_issue_comments()]
+    print(old_comments)
     if new_comment in old_comments:
         print('This pull request already a duplicated comment.')
         exit(0)
