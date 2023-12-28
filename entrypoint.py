@@ -73,11 +73,11 @@ def extract_branch_name(ref):
 def main():
     # search a pull request that triggered this action
     gh = Github(os.getenv('GITHUB_TOKEN'))
-    templateName = Github(os.getenv('TEMPLATE'))
     event = read_json(os.getenv('GITHUB_EVENT_PATH'))    
     branch_name = extract_branch_name(event['ref'])
-    branch_author = event['commits'][0]["author"]["username"]
-    branch_label = "leaninorg:" + branch_name  # author:branch
+    branch_author = event["repository"]["full_name"].split('/')[0]
+    branch_label = branch_author + ":" + branch_name
+    print(branch_label)
     repo = gh.get_repo(event['repository']['full_name'])
     prs = repo.get_pulls(state='open', sort='created', head=branch_label)
     pr = prs[0]
