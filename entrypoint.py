@@ -75,9 +75,6 @@ def main():
     gh = Github(os.getenv('GITHUB_TOKEN'))
     templateName = Github(os.getenv('TEMPLATE'))
     event = read_json(os.getenv('GITHUB_EVENT_PATH'))    
-    print(event)
-    print("template is:")
-    print(templateName)
     branch_name = extract_branch_name(event['ref'])
     branch_author = event['commits'][0]["author"]["username"]
     branch_label = "leaninorg:" + branch_name  # author:branch
@@ -85,9 +82,8 @@ def main():
     prs = repo.get_pulls(state='open', sort='created', head=branch_label)
     pr = prs[0]
 
-    # load template
-    template = load_template(templateName)
-    print(template)    
+    # the host repo should have a 'uat.md' defined in the workflows directory
+    template = load_template('uat.md')
     # build a comment
     pr_info = {
         'pull_id': pr.number,
@@ -97,7 +93,6 @@ def main():
     print(new_comment)
     # check if this pull request has a duplicated comment
     old_comments = [c.body for c in pr.get_issue_comments()]
-    print(old_comments)
     if new_comment in old_comments:
         print('This pull request already a duplicated comment.')
         exit(0)
