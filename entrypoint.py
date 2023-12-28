@@ -82,10 +82,11 @@ def main():
     templateName = Github(os.getenv('TEMPLATE'))
     print(templateName)
     event = read_json(os.getenv('GITHUB_EVENT_PATH'))    
+    print(event)
     branch_name = extract_branch_name(event['ref'])
     print(branch_name)
     branch_author = event['commits'][0]["author"]["username"]
-    branch_label = branch_author + ":" + branch_name  # author:branch
+    branch_label = "leaninorg:" + branch_name  # author:branch
     print(branch_author)
     print(branch_label)
     repo = gh.get_repo(event['repository']['full_name'])
